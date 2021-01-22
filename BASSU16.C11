@@ -180,8 +180,8 @@
     )
     {
         if( (2+1) != noa ){ 
-            /** 2+1 because first argument is NOT user supplied **/
-            printf("[EXPECT_EXACTLY_2_USER_SUPPLIED_ARGUMENTS]");
+            /** 2+1 because 1st argument is NOT user supplied**/
+            printf("[EXPECT_EXACTLY_2_USER_ARGUMENTS]");
         }else{
 
             CHR* msg_err = "[DEFAULT_ERROR_MESSAGE]" ;
