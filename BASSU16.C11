@@ -1,0 +1,246 @@
+//:INCLUDES:=================================================://
+
+    #include <stdio.h>  //: printf(...)
+    #include <stdlib.h> //: exit()
+    #include <stdint.h> //: For: uint16_t , uint32_t , ect.
+         
+//:=================================================:INCLUDES://
+//:ASSERT_AND_INSPECT:=======================================://
+#define U16 uint16_t /** GCC: <stdint.h> **/
+#define I32  int32_t /** GCC: <stdint.h> **/
+#define CHR const char 
+#define BASSU16_COMPARE_WHEN_SAME ( 1 )
+
+    U16 BASSU16_AssertAndInspect(  
+        U16  u16_001 //: 1st bit field uint16 to compare.    ://
+    ,   U16  u16_002 //: 2nd bit field uint16 to compare.    ://
+    ,   CHR* msg_err //: Message to display when assert fails://
+    )
+    {
+        //:declare_variables:--------------------------------://
+
+            U16 u16_min;
+            U16 u16_max;
+            U16 u16_del; //:delta.
+            U16 u16_tem; //:temp variable
+            
+            I32     dex; //:Index variable for looping.
+
+        //:--------------------------------:declare_variables://
+        //:find_delta_of_inputs:-----------------------------://
+
+            if( u16_001 <= u16_002 ){ u16_min = u16_001 ;
+                                      u16_max = u16_002 ; };;
+
+            if( u16_002 <= u16_001 ){ u16_min = u16_002 ;
+                                      u16_max = u16_001 ; };;
+
+            u16_del=( u16_max - u16_min );
+
+        //:-----------------------------:find_delta_of_inputs://
+        //:analysis_of_inputs:-------------------------------://
+        if( u16_001 != u16_002 || BASSU16_COMPARE_WHEN_SAME ){  
+
+        //:SWAPPED_BITS_CHECK://
+
+            //:----------------------------------------------://
+            //:  Check to see if the bit patterns are   .....://
+            //:  mirror images of each other.           .....://
+            //:                                         .....://
+            //:  0 0 0 0   1 1 1 1  <-- example u16_001 .....://
+            //:  1 1 1 1   0 0 0 0  <-- example u16_002 .....://
+            //:                                         .....://
+            //:  1 1 1 1   1 1 0 0  <-- example u16_001 .....://
+            //:  0 0 1 1   1 1 1 1  <-- example u16_002 .....://
+            //:----------------------------------------------://
+
+            u16_tem =( (U16)0x0000 );
+
+            for( dex = 0 ; dex <= (16-1) ; dex ++ ){
+
+                u16_tem =(
+                u16_tem 
+                    |  //:<-- Or to SMASH together.
+                    (
+                       ( ( u16_002 >> dex )&( 1 ) )
+                       <<
+                       ((16-1)-dex )
+                    )
+                );;
+
+            };;
+
+            /** Are inputs mirror images of each other? **/
+            if( u16_001 == u16_tem /**swapped_bits:u16_002**/ ){
+
+                printf("[MIRROR_IMAGES_OF_EACH_OTHER]\n");
+            };;
+
+        //:PAIRS_OF_TWO_BITS_PACKED_IN_WRONG_ORDER://
+
+            //: 11 10 01 00 <== u16_001  ( using 8 bit values )
+            //: 00 01 10 11 <== u16_002  ( for example        )
+
+            u16_tem =( (U16)0x0000 );
+
+            for( dex = 0 ; dex <= ((16/2)-1) ; dex ++ ){
+
+                u16_tem =(
+                u16_tem 
+                    |  //:<-- Or to SMASH together.
+                    (
+                       ( ( u16_002 >> (dex*2) )&( 3 ) )
+                       <<
+                       (   ( ((16/2)-1)-(dex) )*( 2 ) )
+                    )
+                );;
+
+            };;
+
+            if( u16_001 == u16_tem /**swapped_bits:u16_002**/ ){
+
+                printf("[BIT_PAIRS_IN_INVERTED_ORDER]\n");
+            };;
+
+        //:CLUSTER_OF_4_BITS:(NYBLES/NIBBLES):
+
+            u16_tem =( (U16)0x0000 );
+
+            for( dex = 0 ; dex <= ((16/4)-1) ; dex ++ ){
+
+                u16_tem =(
+                u16_tem 
+                    |  //:<-- Or to SMASH together.
+                    (
+                       ( ( u16_002 >> (dex*4) )&( 15 ) )
+                       <<
+                       (   ( ((16/4)-1)-(dex) )*(  4 ) )
+                    )
+                );;
+
+            };;
+
+            if( u16_001 == u16_tem /**swapped_bits:u16_002**/ ){
+
+                printf("[NIBBLES_IN_INVERTED_ORDER]\n");
+            };;
+
+        //:BYTE_ENDIAN_NESS_CHECK://
+
+            if(
+                (
+                    ( ( u16_001 >> 8 ) & 0xFF )
+                 == ( ( u16_002 >> 0 ) & 0xFF )
+                )
+                &&
+                (
+                    ( ( u16_001 >> 0 ) & 0xFF )
+                 == ( ( u16_002 >> 8 ) & 0xFF )
+                )
+            ){
+                printf("[INVERTED_ENDIAN_NESS]\n");
+            };;
+
+        };; ////////////////////////////////////////////////////
+        //:-------------------------------:analysis_of_inputs://
+        //:crash_or_notify_if_different:---------------------://
+
+            if( u16_001 != u16_002 ){
+
+                printf( "[OH_NOOS:msg_err]:%s\n", msg_err );
+
+                exit( 77 );
+            };;
+
+        //:---------------------:crash_or_notify_if_different://
+        //:no_news_is_not_always_good_news:------------------://
+        if( u16_001+0 == u16_001+0 ){
+            
+            printf("[THEY_ARE_THE_SAME_BOSS]\n");
+
+        };;
+        //:------------------:no_news_is_not_always_good_news://
+
+        return( u16_del );
+    }
+
+#undef  U16
+#undef  I32
+#undef  CHR
+#undef  BASSU16_COMPARE_WHEN_SAME
+//:=======================================:ASSERT_AND_INSPECT://
+//:MAIN_FUNCTION:============================================://
+#define I32  int32_t /** GCC: <stdint.h> **/
+#define U16 uint16_t /** GCC: <stdint.h> **/
+#define CHR const char
+
+    int main( 
+        I32   noa  /** Number_Of_Arguments **/
+    ,   CHR** a_a  /** Argument Array      **/
+    )
+    {
+        if( (2+1) != noa ){ 
+            /** 2+1 because first argument is NOT user supplied **/
+            printf("[EXPECT_EXACTLY_2_USER_SUPPLIED_ARGUMENTS]");
+        }else{
+
+            CHR* msg_err = "[DEFAULT_ERROR_MESSAGE]" ;
+
+            U16 u16_001 = (U16)( strtoul( a_a[ 1 ], 0, 0) ); 
+            U16 u16_002 = (U16)( strtoul( a_a[ 2 ], 0, 0) ); 
+        
+            BASSU16_AssertAndInspect(
+                u16_001
+            ,   u16_002
+            ,   msg_err
+            );;
+
+        };;
+    }
+
+
+#undef  I32  //:----------------------------------------: 01 ://
+#undef  U16  //:----------------------------------------: 02 ://
+#undef  CHR  //:----------------------------------------: 03 ://
+//:============================================:MAIN_FUNCTION://
+//:EXAMPLES_TO_RUN_ON_COMMAND_LINE:==========================://
+
+    //: INVERTED_ENDIAN_NESS 
+    //: 0xF0D0 ==> 1111 0000 1101 0000
+    //: 0xD0F0 ==> 1101 0000 1111 0000
+
+    //: MIRROR_IMAGES_OF_EACH_OTHER
+    //:     0x000F ==> 0000 0000 0000 1111
+    //:     0xF000 ==> 1111 0000 0000 0000
+    //:
+    //:     0x5000 ==> 0101 0000 0000 0000
+    //:     0x000A ==> 0000 0000 0000 1010
+
+
+    //: INVERTED_ENDIAN_NESS
+    //: MIRROR_IMAGES_OF_EACH_OTHER
+    //: 0xFF00 ==> 1111 1111 0000 0000
+    //: 0x00FF ==> 0000 0000 1111 1111
+
+
+    //: BIT_PAIRS_IN_INVERTED_ORDER
+
+    //:     0xC59B ==>  1100 0101 1001 1011
+    //:     0xE653 ==>  1110 0110 0101 0011
+            
+    //:     0x00AB ==>  0000 0000 1010 1011
+    //:     0xEA00 ==>  1110 1010 0000 0000
+                
+    //:     0x1234 ==>  0001 0010 0011 0100
+    //:     0x1C84 ==>  0001 1100 1000 0100
+
+ 
+    //: NIBBLES_IN_INVERTED_ORDER
+
+    //:     0xBDDB ==>  1011 1101 1101 1011
+    //:     0xBDDB ==>  1011 1101 1101 1011
+
+    //:     0xF9DB ==>  1111 1001 1101 1011
+    //:     0xBD9F ==>  1011 1101 1001 1111
+
+//:==========================:EXAMPLES_TO_RUN_ON_COMMAND_LINE://
