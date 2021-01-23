@@ -141,6 +141,29 @@
                 printf("[INVERTED_ENDIAN_NESS]\n");
             };;
 
+        //:IMPROPER_TRANSCRIPTION_OF_2_BIT_VALUES://
+
+            u16_tem =( (U16)0x0000 );
+
+            for( dex = 0 ; dex <= ((16/2)-1) ; dex ++ ){
+
+                if( 
+                    (( u16_001 >> ( dex*2) ) & ( 3 ))
+                !=  (( u16_002 >> ( dex*2) ) & ( 3 ))
+                ){
+                    u16_tem++; //:Number Of Non_Matching
+                               //:2-bit values.
+                };;
+            };;
+            if( u16_tem >= 1 && u16_tem <= 2 ){
+                /** You may have made a mistake when you     **/
+                /** created the table of 2-bit valuess to    **/
+                /** bit pack together. Possibly 1 or two     **/
+                /** of them was written down wrong.          **/
+                printf("[NUM_MISMATCHED_PAIRS]:%d\n", u16_tem);
+                printf("[HARD_CODED_2_BIT_TABLE_TERROR]");
+            };;
+
         };; ////////////////////////////////////////////////////
         //:-------------------------------:analysis_of_inputs://
         //:crash_or_notify_if_different:---------------------://
@@ -242,5 +265,20 @@
 
     //:     0xF9DB ==>  1111 1001 1101 1011
     //:     0xBD9F ==>  1011 1101 1001 1111
+
+
+    //: HARD_CODED_2_BIT_TABLE_TERROR
+
+    //:     0x0000
+    //:     0x0003
+
+    //:     0x0000
+    //:     0x000F
+
+    //:     0xAAAA
+    //:     0xABAA
+
+    //:     0xAAAA
+    //:     0xABAB
 
 //:==========================:EXAMPLES_TO_RUN_ON_COMMAND_LINE://
